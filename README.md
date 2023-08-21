@@ -22,6 +22,10 @@
 pip install better-proxy
 ```
 
+More libraries of the family:
+- [better-web3](https://github.com/alenkimov/better_web3)
+- [better-automation](https://github.com/alenkimov/better_automation)
+
 ```python
 import aiohttp
 from better_proxy import Proxy
