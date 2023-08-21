@@ -2,8 +2,6 @@ import re
 from pathlib import Path
 from typing import Literal
 
-from .utils import load_lines
-
 
 Protocol = Literal["http", "https", "SOP2", "SOP3", "socks4", "socks5"]
 PROXY_FORMATS_REGEXP = [
@@ -11,6 +9,11 @@ PROXY_FORMATS_REGEXP = [
     re.compile(r'^(?:(?P<type>.+)://)?(?P<host>[^:]+):(?P<port>\d+)[@|:](?P<login>[^:]+):(?P<password>[^:]+)$'),
     re.compile(r'^(?:(?P<type>.+)://)?(?P<host>[^:]+):(?P<port>\d+)$'),
 ]
+
+
+def _load_lines(filepath: Path | str) -> list[str]:
+    with open(filepath, "r") as file:
+        return [line.strip() for line in file.readlines() if line != "\n"]
 
 
 class Proxy:
@@ -46,7 +49,7 @@ class Proxy:
 
     @classmethod
     def from_file(cls, filepath: Path | str) -> list["Proxy"]:
-        return [cls.from_str(proxy) for proxy in load_lines(filepath)]
+        return [cls.from_str(proxy) for proxy in _load_lines(filepath)]
 
     @property
     def as_url(self) -> str:
