@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "better-proxy"
+version = "0.1.0"
+description = "Better proxy!"
+authors = ["Alen <alen.kimov@gmail.com>"]
+readme = "README.md"
+packages = [{include = "better_proxy"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyuseragents = "^1.0.5"
+tqdm = "^4.66.1"
+aioimaplib = "^1.0.1"
+aiohttp-socks = "^0.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
