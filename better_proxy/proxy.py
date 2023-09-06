@@ -61,7 +61,7 @@ class Proxy:
         return f"Proxy(host={self.host}, port={self.port})"
 
     def __str__(self) -> str:
-        return f"[{self.host:>15}:{str(self.port):<5}]"
+        return f"[{self.host:>15}:{str(self.port):<5}]".replace(" ", "_")
 
     def __hash__(self):
         return hash((self.host, self.port, self.protocol, self.login, self.password))
