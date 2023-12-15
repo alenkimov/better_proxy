@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "better-proxy"
-version = "0.2.1"
+version = "0.2.2"
 description = "Better proxy!"
 authors = ["Alen <alen.kimov@gmail.com>"]
 readme = "README.md"
 packages = [{include = "better_proxy"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
 
 [build-system]
 requires = ["poetry-core"]

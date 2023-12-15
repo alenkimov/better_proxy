@@ -37,12 +37,13 @@ class Proxy:
         for pattern in PROXY_FORMATS_REGEXP:
             match = pattern.match(proxy)
             if match:
+                groups = match.groupdict()
                 return cls(
-                    host=match.group('host'),
-                    port=int(match.group('port')),
-                    protocol=match.group('type'),
-                    login=match.group('login'),
-                    password=match.group('password'),
+                    host=groups['host'],
+                    port=int(groups['port']),
+                    protocol=groups.get('type'),
+                    login=groups.get('login'),
+                    password=groups.get('password'),
                 )
 
         raise ValueError(f'Unsupported proxy format: {proxy}')
