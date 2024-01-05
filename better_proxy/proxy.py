@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 from typing import Literal
 
+from pydantic import BaseModel
+
 
 Protocol = Literal["http", "https", "SOP2", "SOP3", "socks4", "socks5"]
 PROXY_FORMATS_REGEXP = [
@@ -16,7 +18,13 @@ def _load_lines(filepath: Path | str) -> list[str]:
         return [line.strip() for line in file.readlines() if line != "\n"]
 
 
-class Proxy:
+class Proxy(BaseModel):
+    host: str
+    port: int
+    protocol: Protocol = "http"
+    login:    str | None = None
+    password: str | None = None
+
     def __init__(
             self,
             host: str,
@@ -26,11 +34,13 @@ class Proxy:
             login: str = None,
             password: str = None,
     ):
-        self.protocol = protocol or "http"
-        self.host = host
-        self.port = port
-        self.login = login
-        self.password = password
+        super().__init__(
+            host=host,
+            port=port,
+            login=login,
+            password=password,
+            protocol=protocol or "http",
+        )
 
     @classmethod
     def from_str(cls, proxy: str) -> "Proxy":
