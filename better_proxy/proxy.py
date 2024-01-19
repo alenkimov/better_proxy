@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 
 Protocol = Literal["http", "https", "SOP2", "SOP3", "socks4", "socks5"]
+# TODO Порт бывает не только числом
 PROXY_FORMATS_REGEXP = [
     re.compile(r'^(?:(?P<type>.+)://)?(?P<login>[^:]+):(?P<password>[^@|:]+)[@|:](?P<host>[^:]+):(?P<port>\d+)$'),
     re.compile(r'^(?:(?P<type>.+)://)?(?P<host>[^:]+):(?P<port>\d+)[@|:](?P<login>[^:]+):(?P<password>[^:]+)$'),
@@ -90,11 +91,15 @@ class Proxy(BaseModel):
             username=self.login,
         )
 
+    @property
+    def fixed_length(self) -> str:
+        return f"[{self.host:>15}:{str(self.port):<5}]".replace(" ", "_")
+
     def __repr__(self):
         return f"Proxy(host={self.host}, port={self.port})"
 
     def __str__(self) -> str:
-        return f"[{self.host:>15}:{str(self.port):<5}]".replace(" ", "_")
+        return self.as_url
 
     def __hash__(self):
         return hash((self.host, self.port, self.protocol, self.login, self.password))
