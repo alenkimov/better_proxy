@@ -50,7 +50,10 @@ class Proxy(BaseModel):
         )
 
     @classmethod
-    def from_str(cls, proxy: str) -> "Proxy":
+    def from_str(cls, proxy: str or "Proxy") -> "Proxy":
+        if type(proxy) is cls:
+            return proxy
+
         for pattern in PROXY_FORMATS_REGEXP:
             match = pattern.match(proxy)
             if match:
