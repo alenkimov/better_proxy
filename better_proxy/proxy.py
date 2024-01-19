@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypedDict
 
 from pydantic import BaseModel
 
@@ -16,6 +16,13 @@ PROXY_FORMATS_REGEXP = [
 def _load_lines(filepath: Path | str) -> list[str]:
     with open(filepath, "r") as file:
         return [line.strip() for line in file.readlines() if line != "\n"]
+
+
+class PlaywrightProxySettings(TypedDict, total=False):
+    server:   str
+    bypass:   str | None
+    username: str | None
+    password: str | None
 
 
 class Proxy(BaseModel):
@@ -67,6 +74,18 @@ class Proxy(BaseModel):
         return (f"{self.protocol}://"
                 + (f"{self.login}:{self.password}@" if self.login and self.password else "")
                 + f"{self.host}:{self.port}")
+
+    @property
+    def server(self) -> str:
+        return f"{self.protocol}://{self.host}:{self.port}"
+
+    @property
+    def as_playwright_proxy(self) -> PlaywrightProxySettings:
+        return PlaywrightProxySettings(
+            server=self.server,
+            password=self.password,
+            username=self.login,
+        )
 
     def __repr__(self):
         return f"Proxy(host={self.host}, port={self.port})"
