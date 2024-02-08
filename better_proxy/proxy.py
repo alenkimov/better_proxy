@@ -34,7 +34,7 @@ class Proxy(BaseModel):
 
     @classmethod
     def from_str(cls, proxy: str or "Proxy") -> "Proxy":
-        if type(proxy) is cls:
+        if type(proxy) is cls or issubclass(type(proxy), cls):
             return proxy
 
         for pattern in PROXY_FORMATS_REGEXP:
