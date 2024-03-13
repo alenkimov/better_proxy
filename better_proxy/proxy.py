@@ -7,9 +7,9 @@ from pydantic import BaseModel
 
 Protocol = Literal["http", "https", "SOP2", "SOP3", "socks4", "socks5"]
 PROXY_FORMATS_REGEXP = [
-    re.compile(r'^(?:(?P<type>.+)://)?(?P<login>[^:]+):(?P<password>[^@|:]+)[@|:](?P<host>[^:]+):(?P<port>\d+)$'),
-    re.compile(r'^(?:(?P<type>.+)://)?(?P<host>[^:]+):(?P<port>\d+)[@|:](?P<login>[^:]+):(?P<password>[^:]+)$'),
-    re.compile(r'^(?:(?P<type>.+)://)?(?P<host>[^:]+):(?P<port>\d+)$'),
+    re.compile(r'^(?:(?P<protocol>.+)://)?(?P<login>[^:]+):(?P<password>[^@|:]+)[@|:](?P<host>[^:]+):(?P<port>\d+)$'),
+    re.compile(r'^(?:(?P<protocol>.+)://)?(?P<host>[^:]+):(?P<port>\d+)[@|:](?P<login>[^:]+):(?P<password>[^:]+)$'),
+    re.compile(r'^(?:(?P<protocol>.+)://)?(?P<host>[^:]+):(?P<port>\d+)$'),
 ]
 
 
@@ -42,11 +42,11 @@ class Proxy(BaseModel):
             if match:
                 groups = match.groupdict()
                 return cls(
-                    host=groups['host'],
-                    port=int(groups['port']),
-                    protocol=groups.get('type'),
-                    login=groups.get('login'),
-                    password=groups.get('password'),
+                    host=groups["host"],
+                    port=int(groups["port"]),
+                    protocol=groups.get("protocol") or "http",
+                    login=groups.get("login"),
+                    password=groups.get("password"),
                 )
 
         raise ValueError(f'Unsupported proxy format: {proxy}')
