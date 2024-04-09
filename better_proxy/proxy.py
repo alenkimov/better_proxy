@@ -13,6 +13,30 @@ PROXY_FORMATS_REGEXP = [
 ]
 
 
+class ParsedProxy(TypedDict):
+    host: str
+    port: int
+    protocol: Protocol | None
+    login:    str | None
+    password: str | None
+
+
+def parse_proxy_str(proxy: str) -> ParsedProxy:
+    for pattern in PROXY_FORMATS_REGEXP:
+        match = pattern.match(proxy)
+        if match:
+            groups = match.groupdict()
+            return {
+                "host": groups["host"],
+                "port": int(groups["port"]),
+                "protocol": groups.get("protocol"),
+                "login": groups.get("login"),
+                "password": groups.get("password"),
+            }
+
+    raise ValueError(f'Unsupported proxy format: {proxy}')
+
+
 def _load_lines(filepath: Path | str) -> list[str]:
     with open(filepath, "r") as file:
         return [line.strip() for line in file.readlines() if line != "\n"]
@@ -38,19 +62,9 @@ class Proxy(BaseModel):
         if type(proxy) is cls or issubclass(type(proxy), cls):
             return proxy
 
-        for pattern in PROXY_FORMATS_REGEXP:
-            match = pattern.match(proxy)
-            if match:
-                groups = match.groupdict()
-                return cls(
-                    host=groups["host"],
-                    port=int(groups["port"]),
-                    protocol=groups.get("protocol") or "http",
-                    login=groups.get("login"),
-                    password=groups.get("password"),
-                )
-
-        raise ValueError(f'Unsupported proxy format: {proxy}')
+        parsed_proxy = parse_proxy_str(proxy)
+        parsed_proxy["protocol"] = parsed_proxy["protocol"] or "http"
+        return cls(**parsed_proxy)
 
     @classmethod
     def from_file(cls, filepath: Path | str) -> list["Proxy"]:
