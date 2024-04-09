@@ -31,6 +31,7 @@ class Proxy(BaseModel):
     protocol: Protocol = "http"
     login:    str | None = None
     password: str | None = None
+    refresh_url: str | None = None
 
     @classmethod
     def from_str(cls, proxy: str or "Proxy") -> "Proxy":
