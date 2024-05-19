@@ -4,10 +4,9 @@
 [![PyPI supported Python versions](https://img.shields.io/pypi/pyversions/better-proxy.svg)](https://pypi.python.org/pypi/better-proxy)
 [![PyPI downloads per month](https://img.shields.io/pypi/dm/better-proxy.svg)](https://pypi.python.org/pypi/better-proxy)
 
+Proxy as a class
 
-
-Представление такой сущности, как proxy в виде класса.
-- Метод `Proxy.from_str()` поддерживает большинство форматом прокси (с протоколом и без):
+- The `Proxy.from_str()` method supports most proxy formats (with and without protocol):
     ```
     host:port:login:password
     host:port@login:password
@@ -16,8 +15,7 @@
     login:password:host:port
     host:port
     ```
-- Реализованы методы `__hash__` и `__eq__`, что позволяет засовывть прокси в set()
-- Метод `Proxy.from_file()` возвращает список прокси из файла по указанному пути
+- The `Proxy.from_file()` method returns the list of proxies from the file at the specified path
 
 
 ```bash
