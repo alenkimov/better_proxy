@@ -89,6 +89,23 @@ class Proxy(BaseModel):
         )
 
     @property
+    def as_proxies_dict(self) -> dict:
+        """Returns a dictionary of proxy settings in a format that can be used with the `requests` library.
+
+        The dictionary will have the following format:
+
+        - If the proxy protocol is "http", "https", or not specified, the dictionary will have the keys "http" and "https" with the proxy URL as the value.
+        - If the proxy protocol is a different protocol (e.g., "socks5"), the dictionary will have a single key with the protocol name and the proxy URL as the value.
+        """
+        proxies = {}
+        if self.protocol in ("http", "https", None):
+            proxies["http"] = self.as_url
+            proxies["https"] = self.as_url
+        elif self.protocol:
+            proxies[self.protocol] = self.as_url
+        return proxies
+
+    @property
     def fixed_length(self) -> str:
         return f"[{self.host:>15}:{str(self.port):<5}]".replace(" ", "_")
 
