@@ -35,10 +35,20 @@ from aiohttp_socks import ProxyConnector
 
 
 async def fetch(url):
-    proxy = Proxy.from_str('socks5://user:password@127.0.0.1:1080')
+    proxy = Proxy.from_str("socks5://user:password@127.0.0.1:1080")
     connector = ProxyConnector.from_url(proxy.as_url)
     
     async with aiohttp.ClientSession(connector=connector) as session:
         async with session.get(url) as response:
             return await response.text()
+```
+
+```python
+import requests
+from better_proxy import Proxy
+
+def fetch(url):
+    proxy = Proxy.from_str("http://user:password@host:port")    
+    response = requests.get(url, proxies=proxy.as_proxies_dict)    
+    return response.text
 ```
