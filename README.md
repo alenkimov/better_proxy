@@ -28,14 +28,15 @@ More libraries of the family:
 - [tweepy-self](https://github.com/alenkimov/tweepy-self)
 - [better-web3](https://github.com/alenkimov/better_web3)
 
+## aiohttp
 ```python
 import aiohttp
 from better_proxy import Proxy
 from aiohttp_socks import ProxyConnector
 
+proxy = Proxy.from_str("socks5://user:password@127.0.0.1:1080")
 
 async def fetch(url):
-    proxy = Proxy.from_str("socks5://user:password@127.0.0.1:1080")
     connector = ProxyConnector.from_url(proxy.as_url)
     
     async with aiohttp.ClientSession(connector=connector) as session:
@@ -43,12 +44,29 @@ async def fetch(url):
             return await response.text()
 ```
 
+## requests
 ```python
 import requests
 from better_proxy import Proxy
 
+proxy = Proxy.from_str("http://user:password@host:port")    
+
 def fetch(url):
-    proxy = Proxy.from_str("http://user:password@host:port")    
     response = requests.get(url, proxies=proxy.as_proxies_dict)    
     return response.text
+```
+
+## playwright
+[Playwright: http proxy](https://playwright.dev/python/docs/network#http-proxy)
+
+```python
+from playwright.async_api import async_playwright, Playwright
+from better_proxy import Proxy
+
+proxy = Proxy.from_str("http://user:password@host:port")
+
+async def fetch(playwright: Playwright, url):
+    chromium = playwright.chromium
+    browser = await chromium.launch(proxy=proxy.as_playwright_proxy)
+    ...
 ```
