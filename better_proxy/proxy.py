@@ -1,4 +1,6 @@
 import re
+import random
+import string
 from pathlib import Path
 from typing import Literal, TypedDict
 
@@ -22,6 +24,9 @@ class ParsedProxy(TypedDict):
 
 
 def parse_proxy_str(proxy: str) -> ParsedProxy:
+    if not proxy:
+        raise ValueError(f"Proxy cannot be an empty string")
+
     for pattern in PROXY_FORMATS_REGEXP:
         match = pattern.match(proxy)
         if match:
@@ -34,7 +39,7 @@ def parse_proxy_str(proxy: str) -> ParsedProxy:
                 "password": groups.get("password"),
             }
 
-    raise ValueError(f'Unsupported proxy format: {proxy}')
+    raise ValueError(f"Unsupported proxy format: '{proxy}'")
 
 
 def _load_lines(filepath: Path | str) -> list[str]:
@@ -108,6 +113,15 @@ class Proxy(BaseModel):
     @property
     def fixed_length(self) -> str:
         return f"[{self.host:>15}:{str(self.port):<5}]".replace(" ", "_")
+
+    def randomize_nodemaven_sid(self):
+        if "nodemaven" not in self.host:
+            raise ValueError(f"You must use the nodemaven proxy."
+                             f" Your host: '{self.host}'")
+
+        sid = self.login.split('sid-')[1].split('-')[0]
+        new_sid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=len(sid)))
+        return self.login.replace(sid, new_sid)
 
     def __repr__(self):
         return f"Proxy(host={self.host}, port={self.port})"
