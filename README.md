@@ -1,5 +1,5 @@
 # Better Proxy
-[![Telegram channel](https://img.shields.io/endpoint?url=https://runkit.io/damiankrawczyk/telegram-badge/branches/master?url=https://t.me/cum_insider)](https://t.me/cum_insider)
+[![Telegram channel](https://img.shields.io/endpoint?color=neon&url=https://tg.sumanjay.workers.dev/cum_insider)](https://t.me/cum_insider)
 [![PyPI version info](https://img.shields.io/pypi/v/better-proxy.svg)](https://pypi.python.org/pypi/better-proxy)
 [![PyPI supported Python versions](https://img.shields.io/pypi/pyversions/better-proxy.svg)](https://pypi.python.org/pypi/better-proxy)
 [![PyPI downloads per month](https://img.shields.io/pypi/dm/better-proxy.svg)](https://pypi.python.org/pypi/better-proxy)
@@ -21,10 +21,6 @@ Proxy as a class
 ```bash
 pip install better-proxy
 ```
-
-More libraries of the family:
-- [tweepy-self](https://github.com/alenkimov/tweepy-self)
-- [better-web3](https://github.com/alenkimov/better_web3)
 
 ## aiohttp
 ```python
