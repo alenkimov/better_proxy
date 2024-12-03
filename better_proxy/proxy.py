@@ -5,7 +5,7 @@ from typing import Literal, TypedDict
 from pydantic import BaseModel
 
 
-Protocol = Literal["http", "https", "SOP2", "SOP3", "socks4", "socks5"]
+Protocol = Literal["http", "https", "socks4", "socks5"]
 PROXY_FORMATS_REGEXP = [
     re.compile(r'^(?:(?P<protocol>.+)://)?(?P<login>[^:]+):(?P<password>[^@|:]+)[@|:](?P<host>[^:]+):(?P<port>\d+)$'),
     re.compile(r'^(?:(?P<protocol>.+)://)?(?P<host>[^:]+):(?P<port>\d+)[@|:](?P<login>[^:]+):(?P<password>[^:]+)$'),
