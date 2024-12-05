@@ -4,23 +4,46 @@ import string
 from pathlib import Path
 from typing import Literal, TypedDict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+from pydantic.networks import HttpUrl, IPv4Address
 
 
 Protocol = Literal["http", "https", "socks4", "socks5"]
 PROXY_FORMATS_REGEXP = [
-    re.compile(r'^(?:(?P<protocol>.+)://)?(?P<login>[^:]+):(?P<password>[^@|:]+)[@|:](?P<host>[^:]+):(?P<port>\d+)$'),
-    re.compile(r'^(?:(?P<protocol>.+)://)?(?P<host>[^:]+):(?P<port>\d+)[@|:](?P<login>[^:]+):(?P<password>[^:]+)$'),
-    re.compile(r'^(?:(?P<protocol>.+)://)?(?P<host>[^:]+):(?P<port>\d+)$'),
+    re.compile(
+        r'^(?:(?P<protocol>.+)://)?'                     # Опционально: протокол
+        r'(?P<login>[^@:]+)'                             # Логин (не содержит ':' или '@')
+        r':(?P<password>[^@]+)'                          # Пароль (может содержать ':', но не '@')
+        r'[@:]'                                          # Символ '@' или ':' как разделитель
+        r'(?P<host>[^@:\s]+)'                            # Хост (не содержит ':' или '@')
+        r':(?P<port>\d{1,5})'                            # Порт: от 1 до 5 цифр
+        r'(?:\[(?P<refresh_url>https?://[^\s\]]+)\])?$'  # Опционально: [refresh_url]
+    ),
+    re.compile(
+        r'^(?:(?P<protocol>.+)://)?'                     # Опционально: протокол
+        r'(?P<host>[^@:\s]+)'                            # Хост (не содержит ':' или '@')
+        r':(?P<port>\d{1,5})'                            # Порт: от 1 до 5 цифр
+        r'[@:]'                                          # Символ '@' или ':' как разделитель
+        r'(?P<login>[^@:]+)'                             # Логин (не содержит ':' или '@')
+        r':(?P<password>[^@]+)'                          # Пароль (может содержать ':', но не '@')
+        r'(?:\[(?P<refresh_url>https?://[^\s\]]+)\])?$'  # Опционально: [refresh_url]
+    ),
+    re.compile(
+        r'^(?:(?P<protocol>.+)://)?'                     # Опционально: протокол
+        r'(?P<host>[^@:\s]+)'                            # Хост (не содержит ':' или '@')
+        r':(?P<port>\d{1,5})'                            # Порт: от 1 до 5 цифр
+        r'(?:\[(?P<refresh_url>https?://[^\s\]]+)\])?$'  # Опционально: [refresh_url]
+    ),
 ]
 
 
 class ParsedProxy(TypedDict):
-    host: str
-    port: int
-    protocol: Protocol | None
-    login:    str | None
-    password: str | None
+    host:        str
+    port:        int
+    protocol:    Protocol | None
+    login:       str      | None
+    password:    str      | None
+    refresh_url: str      | None
 
 
 def parse_proxy_str(proxy: str) -> ParsedProxy:
@@ -37,6 +60,7 @@ def parse_proxy_str(proxy: str) -> ParsedProxy:
                 "protocol": groups.get("protocol"),
                 "login": groups.get("login"),
                 "password": groups.get("password"),
+                "refresh_url": groups.get("refresh_url"),
             }
 
     raise ValueError(f"Unsupported proxy format: '{proxy}'")
@@ -55,12 +79,26 @@ class PlaywrightProxySettings(TypedDict, total=False):
 
 
 class Proxy(BaseModel):
-    host: str
-    port: int
-    protocol: Protocol = "http"
-    login:    str | None = None
-    password: str | None = None
+    host:        str
+    port:        int = Field(gt=0, le=65535)
+    protocol:    Protocol = 'http'
+    login:       str | None = None
+    password:    str | None = None
     refresh_url: str | None = None
+
+    @field_validator('host')
+    def host_validator(cls, v):
+        if v.replace('.', '').isdigit():
+            IPv4Address(v)
+        else:
+            HttpUrl(f'http://{v}')
+        return v
+
+    @field_validator('refresh_url')
+    def refresh_url_validator(cls, v):
+        if v:
+            HttpUrl(v)
+        return v
 
     @classmethod
     def from_str(cls, proxy: str or "Proxy") -> "Proxy":
@@ -119,18 +157,27 @@ class Proxy(BaseModel):
             raise ValueError(f"You must use the nodemaven proxy."
                              f" Your host: '{self.host}'")
 
+        if not self.login:
+            raise ValueError("Login must be specified.")
+
+        if 'sid-' not in self.login:
+            raise ValueError("Login does not contain 'sid-'")
+
         sid = self.login.split('sid-')[1].split('-')[0]
         new_sid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=len(sid)))
         return self.login.replace(sid, new_sid)
 
     def __repr__(self):
-        return f"Proxy(host={self.host}, port={self.port})"
+        if self.refresh_url:
+            return f"Proxy({self.as_url}, [{self.refresh_url}])"
+
+        return f"Proxy({self.as_url})"
 
     def __str__(self) -> str:
         return self.as_url
 
     def __hash__(self):
-        return hash((self.host, self.port, self.protocol, self.login, self.password))
+        return hash((self.host, self.port, self.protocol, self.login, self.password, self.refresh_url))
 
     def __eq__(self, other):
         if isinstance(other, Proxy):
@@ -140,5 +187,6 @@ class Proxy(BaseModel):
                 and self.protocol == other.protocol
                 and self.login == other.login
                 and self.password == other.password
+                and self.refresh_url == other.refresh_url
             )
         return False
