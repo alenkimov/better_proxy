@@ -10,7 +10,6 @@ Proxy as a class
     ```
     host:port:login:password
     host:port@login:password
-    host:port|login:password
     login:password@host:port
     login:password:host:port
     host:port
