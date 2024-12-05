@@ -64,3 +64,31 @@ async def fetch(playwright: Playwright, url):
     browser = await chromium.launch(proxy=proxy.as_playwright_proxy)
     ...
 ```
+
+## httpx
+```python
+import httpx
+from better_proxy import Proxy
+
+proxy = Proxy.from_str("login:password@210.173.88.77:3001")
+
+async def fetch(url):
+    async with httpx.AsyncClient(proxy=proxy.as_url) as client:
+        response = await client.get(url)
+        return response.text
+```
+
+## httpx-socks
+```python
+import httpx
+from httpx_socks import AsyncProxyTransport
+from better_proxy import Proxy
+
+proxy = Proxy.from_str("socks5://login:password@210.173.88.77:3001")
+
+async def fetch(url):
+    transport = AsyncProxyTransport.from_url(proxy.as_url)
+    async with httpx.AsyncClient(transport=transport) as client:
+        response = await client.get(url)
+        return response.text
+```
