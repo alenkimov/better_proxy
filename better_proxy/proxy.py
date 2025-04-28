@@ -133,12 +133,15 @@ class Proxy(BaseModel):
 
     @property
     def as_proxies_dict(self) -> dict:
-        """Returns a dictionary of proxy settings in a format that can be used with the `requests` library.
+        """
+        Returns a dictionary of proxy settings in a format that can be used with the `requests` library.
 
         The dictionary will have the following format:
 
-        - If the proxy protocol is "http", "https", or not specified, the dictionary will have the keys "http" and "https" with the proxy URL as the value.
-        - If the proxy protocol is a different protocol (e.g., "socks5"), the dictionary will have a single key with the protocol name and the proxy URL as the value.
+        - If the proxy protocol is "http", "https", or not specified,
+         the dictionary will have the keys "http" and "https" with the proxy URL as the value.
+        - If the proxy protocol is a different protocol (e.g., "socks5"),
+         the dictionary will have a single key with the protocol name and the proxy URL as the value.
         """
         proxies = {}
         if self.protocol in ("http", "https", None):
@@ -166,6 +169,11 @@ class Proxy(BaseModel):
         sid = self.login.split('sid-')[1].split('-')[0]
         new_sid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=len(sid)))
         return self.model_copy(update={"login": self.login.replace(sid, new_sid)})
+    def increment_port(self):
+        """
+        Some residential proxies change IP address when the port is changed
+        """
+        self.port = (self.proxy.port % 65535) + 1
 
     def __repr__(self):
         if self.refresh_url:
