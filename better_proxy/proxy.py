@@ -155,7 +155,7 @@ class Proxy(BaseModel):
     def fixed_length(self) -> str:
         return f"[{self.host:>15}:{str(self.port):<5}]".replace(" ", "_")
 
-    def copy_with_randomized_nodemaven_sid(self) -> "Proxy":
+    def randomized_nodemaven_sid(self) -> "Proxy":
         if "nodemaven" not in self.host:
             raise ValueError(f"You must use the nodemaven proxy."
                              f" Your host: '{self.host}'")
@@ -168,7 +168,8 @@ class Proxy(BaseModel):
 
         sid = self.login.split('sid-')[1].split('-')[0]
         new_sid = ''.join(random.choices(string.ascii_lowercase + string.digits, k=len(sid)))
-        return self.model_copy(update={"login": self.login.replace(sid, new_sid)})
+        self.login = self.login.replace(sid, new_sid)
+
     def increment_port(self):
         """
         Some residential proxies change IP address when the port is changed
