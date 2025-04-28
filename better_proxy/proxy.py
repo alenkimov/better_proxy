@@ -174,7 +174,7 @@ class Proxy(BaseModel):
         """
         Some residential proxies change IP address when the port is changed
         """
-        self.port = (self.proxy.port % 65535) + 1
+        self.port = (self.port % 65535) + 1
 
     def __repr__(self):
         if self.refresh_url:
