@@ -91,3 +91,39 @@ async def fetch(url):
         response = await client.get(url)
         return response.text
 ```
+
+## How to change residential proxy IP
+
+### proxy-seller.io
+```python
+import httpx
+from better_proxy import Proxy
+
+proxy = Proxy.from_str('res.proxy-seller.io:10071:login:password')
+
+def print_proxy_and_ip(proxy: Proxy):
+    response = httpx.get('https://api.myip.com', proxy=proxy.as_url)
+    print(proxy, response.text)
+
+if __name__ == '__main__':
+    print_proxy_and_ip(proxy)
+    proxy.increment_port()
+    print_proxy_and_ip(proxy)
+```
+
+### nodemaven.com
+```python
+import httpx
+from better_proxy import Proxy
+
+proxy = Proxy.from_str('http://proxy-sid-m563x6cqwvomn4m-filter-medium:password@gate.nodemaven.com:8080')
+
+def print_proxy_and_ip(proxy: Proxy):
+    response = httpx.get('https://api.myip.com', proxy=proxy.as_url)
+    print(proxy, response.text)
+
+if __name__ == '__main__':
+    print_proxy_and_ip(proxy)
+    proxy.randomized_nodemaven_sid()
+    print_proxy_and_ip(proxy)
+```
